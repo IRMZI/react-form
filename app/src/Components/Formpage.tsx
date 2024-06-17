@@ -3,10 +3,12 @@ import { Button, TextField, Typography } from "@material-ui/core";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+// cria o schema
 const schema = z.object({
   Company: z.string().min(1, "Nome da empresa é obrigatório"),
   UniqueID: z.string().min(1, "CNPJ é obrigatório"),
   FantasyName: z.string(),
+  //Cria objeto endereço como um json aparte
   address: z.object({
     ZipCode: z
       .string()
@@ -21,21 +23,26 @@ const schema = z.object({
   }),
 });
 
+//Define o props do forms como a tipagem do schema
+type FormProps = z.infer<typeof schema>;
+
 function Form() {
+  // Devolve o formstate de errors, e o useform utiliza a tipagem do schema
   const {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm({
+  } = useForm<FormProps>({
     criteriaMode: "all",
     mode: "all",
     resolver: zodResolver(schema),
   });
-
-  const handleFormSubmit = (data) => {
-    console.log(data);
+  // mostra a informação vinda do formulario apartir do schema
+  const handleFormSubmit = (data: FormProps) => {
+    console.log("Informação atual do formulario", data);
   };
-
+  // mostra a informação dos erros
+  console.log("esses são os erros", errors);
   return (
     <>
       <Typography variant="h6" component="div" gutterBottom>
@@ -68,6 +75,7 @@ function Form() {
               variant="outlined"
               error={!!errors.UniqueID}
               fullWidth
+              inputProps={{ maxLength: 14 }}
               margin="normal"
             />
           )}
