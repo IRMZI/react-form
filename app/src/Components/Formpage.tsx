@@ -58,7 +58,7 @@ function Form() {
               {...field}
               label="Nome da empresa"
               variant="outlined"
-              error={!!errors.company}
+              error={!!errors.Company}
               fullWidth
               margin="normal"
             />
@@ -96,7 +96,7 @@ function Form() {
           )}
         />
         <Controller
-          name="ZipCode"
+          name="address.ZipCode"
           control={control}
           defaultValue=""
           render={({ field }) => (
@@ -104,7 +104,7 @@ function Form() {
               {...field}
               label="CEP"
               variant="outlined"
-              error={!!errors.ZipCode}
+              error={!!errors.address?.ZipCode}
               fullWidth
               margin="normal"
               inputProps={{ maxLength: 9 }}
@@ -112,7 +112,7 @@ function Form() {
           )}
         />
         <Controller
-          name="Street"
+          name="address.Street"
           control={control}
           defaultValue=""
           render={({ field }) => (
@@ -120,14 +120,14 @@ function Form() {
               {...field}
               label="Rua"
               variant="outlined"
-              error={!!errors.Street}
+              error={!!errors.address?.Street}
               fullWidth
               margin="normal"
             />
           )}
         />
         <Controller
-          name="District"
+          name="address.District"
           control={control}
           defaultValue=""
           render={({ field }) => (
@@ -135,14 +135,14 @@ function Form() {
               {...field}
               label="Bairro"
               variant="outlined"
-              error={!!errors.District}
+              error={!!errors.address?.District}
               fullWidth
               margin="normal"
             />
           )}
         />
         <Controller
-          name="Complement"
+          name="address.Complement"
           control={control}
           defaultValue=""
           render={({ field }) => (
@@ -150,14 +150,14 @@ function Form() {
               {...field}
               label="Complemento"
               variant="outlined"
-              error={!!errors.Complement}
+              error={!!errors.address?.Complement}
               fullWidth
               margin="normal"
             />
           )}
         />
         <Controller
-          name="City"
+          name="address.City"
           control={control}
           defaultValue=""
           render={({ field }) => (
@@ -165,14 +165,14 @@ function Form() {
               {...field}
               label="Cidade"
               variant="outlined"
-              error={!!errors.City}
+              error={!!errors.address?.City}
               fullWidth
               margin="normal"
             />
           )}
         />
         <Controller
-          name="State"
+          name="address.State"
           control={control}
           defaultValue=""
           render={({ field }) => (
@@ -180,14 +180,14 @@ function Form() {
               {...field}
               label="Estado"
               variant="outlined"
-              error={!!errors.State}
+              error={!!errors.address?.State}
               fullWidth
               margin="normal"
             />
           )}
         />
         <Controller
-          name="Number"
+          name="address.Number"
           control={control}
           defaultValue=""
           render={({ field }) => (
@@ -195,7 +195,7 @@ function Form() {
               {...field}
               label="Numero"
               variant="outlined"
-              error={!!errors.Number}
+              error={!!errors.address?.Number}
               fullWidth
               margin="normal"
             />
