@@ -4,9 +4,6 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useState } from "react";
-// ///////
-// objetos
-// ///////
 
 const schema = z.object({
   Company: z.string().min(1, "Nome da empresa é obrigatório"),
@@ -51,11 +48,42 @@ function Form() {
   const handleFormSubmit = async (data: FormProps) => {
     // mostra a informação vinda do formulario apartir do schema
     console.log("Informação atual do formulario", data);
-
-    const companyAddress = `${data.address.Number}, ${data.address.Street}, ${data.address.City}, ${data.address.State}, ${data.address.ZipCode}`;
-
-    console.log("O endereço do usuário é:", companyAddress);
-
+    try {
+      const empresa = {
+        Company: data.Company,
+        UniqueID: data.UniqueID,
+        FantasyName: data.FantasyName,
+        address: {
+          ZipCode: data.address.ZipCode,
+          Street: data.address.Street,
+          Number: data.address.Number,
+          District: data.address.District,
+          Complement: data.address.Complement,
+          City: data.address.City,
+          State: data.address.State,
+          Country: data.address.Country,
+        },
+      };
+      // Obter empresas existentes do localStorage
+      const empresas = JSON.parse(localStorage.getItem("empresas") || "[]");
+      // Verificar se a empresa já existe na lista
+      const empresaExiste = empresas.some(
+        (cnpj: any) => cnpj.UniqueID === empresa.UniqueID
+      );
+      if (empresaExiste) {
+        alert("Empresa com este CNPJ já está cadastrada.");
+        return;
+      }
+      // Adicionar nova empresa à lista
+      empresas.push(empresa);
+      // Armazenar a lista atualizada de empresas no localStorage
+      localStorage.setItem("empresas", JSON.stringify(empresas));
+    } catch (error) {
+      console.log("Erro ao validar o formulário:", error);
+    }
+    //
+    const companyAddress = `${data.address.Number}, ${data.address.Street} , ${data.address.City} , ${data.address.District} ${data.address.State} ${data.address.Country}`;
+    // Envia requisição
     try {
       const response = await axios.get(
         "https://nominatim.openstreetmap.org/search",
@@ -67,12 +95,12 @@ function Form() {
           },
         }
       );
-
       if (response.data.length > 0) {
         const { lat, lon } = response.data[0];
         setCoordinates([parseFloat(lat), parseFloat(lon)]);
+        // apartir daqui pode ser utilizado lat e lon como individuais e coordinates como o array
+        localStorage.setItem("companyGeolocation", JSON.stringify(coordinates));
       } else {
-        console.error("No coordinates found for the address.");
         setCoordinates(null);
       }
     } catch (error) {
@@ -81,8 +109,6 @@ function Form() {
     }
   };
 
-  // mostra a informação dos erros
-  console.log("esses são os erros", errors);
   return (
     <div>
       <Typography variant="h6" component="div" gutterBottom>
