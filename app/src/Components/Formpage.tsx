@@ -48,6 +48,7 @@ function Form() {
   const handleFormSubmit = async (data: FormProps) => {
     // mostra a informação vinda do formulario apartir do schema
     console.log("Informação atual do formulario", data);
+    // Envia requisição
     try {
       const empresa = {
         Company: data.Company,
@@ -63,6 +64,7 @@ function Form() {
           State: data.address.State,
           Country: data.address.Country,
         },
+        coordinates: [0, 0],
       };
       // Obter empresas existentes do localStorage
       const empresas = JSON.parse(localStorage.getItem("empresas") || "[]");
@@ -74,38 +76,36 @@ function Form() {
         alert("Empresa com este CNPJ já está cadastrada.");
         return;
       }
+      const companyAddress = `${data.address.Number}, ${data.address.Street} , ${data.address.City} , ${data.address.District} ${data.address.State} ${data.address.Country}`;
+      try {
+        const response = await axios.get(
+          "https://nominatim.openstreetmap.org/search",
+          {
+            params: {
+              q: companyAddress,
+              format: "json",
+              addressdetails: 1,
+            },
+          }
+        );
+        // Se obteve resposta
+        if (response.data.length > 0) {
+          const { lat, lon } = response.data[0];
+          const coords: [number, number] = [parseFloat(lat), parseFloat(lon)];
+          setCoordinates(coords);
+          empresa.coordinates = coords;
+          // apartir daqui pode ser utilizado lat e lon como individuais e coordinates como o array
+        } else {
+          // Tratamento de erros de requisição
+          setCoordinates(null);
+        }
+      } catch (error) {}
       // Adicionar nova empresa à lista
       empresas.push(empresa);
       // Armazenar a lista atualizada de empresas no localStorage
       localStorage.setItem("empresas", JSON.stringify(empresas));
     } catch (error) {
-      console.log("Erro ao validar o formulário:", error);
-    }
-    //
-    const companyAddress = `${data.address.Number}, ${data.address.Street} , ${data.address.City} , ${data.address.District} ${data.address.State} ${data.address.Country}`;
-    // Envia requisição
-    try {
-      const response = await axios.get(
-        "https://nominatim.openstreetmap.org/search",
-        {
-          params: {
-            q: companyAddress,
-            format: "json",
-            addressdetails: 1,
-          },
-        }
-      );
-      if (response.data.length > 0) {
-        const { lat, lon } = response.data[0];
-        setCoordinates([parseFloat(lat), parseFloat(lon)]);
-        // apartir daqui pode ser utilizado lat e lon como individuais e coordinates como o array
-        localStorage.setItem("companyGeolocation", JSON.stringify(coordinates));
-      } else {
-        setCoordinates(null);
-      }
-    } catch (error) {
-      console.error("Error fetching coordinates:", error);
-      setCoordinates(null);
+      console.error("Erro ao processar o formulário:", error);
     }
   };
 
