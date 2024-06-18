@@ -3,10 +3,16 @@ import { Button, TextField, Typography } from "@material-ui/core";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-// cria o schema
+// ///////
+// objetos
+// ///////
+
 const schema = z.object({
   Company: z.string().min(1, "Nome da empresa é obrigatório"),
-  UniqueID: z.string().min(1, "CNPJ é obrigatório"),
+  UniqueID: z
+    .string()
+    .min(1, "CNPJ é obrigatório")
+    .max(14, "Máximo de 14 dígitos"),
   FantasyName: z.string(),
   //Cria objeto endereço como um json aparte
   address: z.object({
@@ -22,8 +28,10 @@ const schema = z.object({
     Number: z.string().min(1, "Numero é obrigatória"),
   }),
 });
-
+//////
 //Define o props do forms como a tipagem do schema
+/////
+
 type FormProps = z.infer<typeof schema>;
 
 function Form() {
@@ -33,18 +41,22 @@ function Form() {
     control,
     formState: { errors },
   } = useForm<FormProps>({
-    criteriaMode: "all",
-    mode: "all",
     resolver: zodResolver(schema),
   });
+
+  // ///////
+  // FUNÇÕES
+  // ///////
+
+  // mostra a informação dos erros
+  console.log("esses são os erros", errors);
   // mostra a informação vinda do formulario apartir do schema
+
   const handleFormSubmit = (data: FormProps) => {
     console.log("Informação atual do formulario", data);
   };
-  // mostra a informação dos erros
-  console.log("esses são os erros", errors);
   return (
-    <>
+    <div>
       <Typography variant="h6" component="div" gutterBottom>
         Olá, bem vindo
       </Typography>
@@ -105,6 +117,7 @@ function Form() {
               label="CEP"
               variant="outlined"
               error={!!errors.address?.ZipCode}
+              helperText={errors?.address?.ZipCode?.message}
               fullWidth
               margin="normal"
               inputProps={{ maxLength: 9 }}
@@ -121,6 +134,7 @@ function Form() {
               label="Rua"
               variant="outlined"
               error={!!errors.address?.Street}
+              helperText={errors?.address?.Street?.message}
               fullWidth
               margin="normal"
             />
@@ -136,6 +150,7 @@ function Form() {
               label="Bairro"
               variant="outlined"
               error={!!errors.address?.District}
+              helperText={errors?.address?.District?.message}
               fullWidth
               margin="normal"
             />
@@ -151,6 +166,7 @@ function Form() {
               label="Complemento"
               variant="outlined"
               error={!!errors.address?.Complement}
+              helperText={errors?.address?.Complement?.message}
               fullWidth
               margin="normal"
             />
@@ -166,6 +182,7 @@ function Form() {
               label="Cidade"
               variant="outlined"
               error={!!errors.address?.City}
+              helperText={errors?.address?.City?.message}
               fullWidth
               margin="normal"
             />
@@ -181,6 +198,7 @@ function Form() {
               label="Estado"
               variant="outlined"
               error={!!errors.address?.State}
+              helperText={errors?.address?.State?.message}
               fullWidth
               margin="normal"
             />
@@ -196,6 +214,7 @@ function Form() {
               label="Numero"
               variant="outlined"
               error={!!errors.address?.Number}
+              helperText={errors?.address?.Number?.message}
               fullWidth
               margin="normal"
             />
@@ -205,7 +224,7 @@ function Form() {
           Enviar
         </Button>
       </form>
-    </>
+    </div>
   );
 }
 

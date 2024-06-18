@@ -1,5 +1,6 @@
 import "./App.css";
 import Form from "./Components/Formpage";
+import Map from "./Components/Map";
 import { useEffect } from "react";
 
 import { createTheme, ThemeProvider } from "@mui/material/styles";
