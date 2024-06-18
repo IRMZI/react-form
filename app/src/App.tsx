@@ -1,45 +1,51 @@
-import "./App.css";
 import Form from "./Components/Formpage";
 import Map from "./Components/Map";
 import { useEffect } from "react";
-
-import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Container from "@mui/material/Container";
 import { CssBaseline } from "@material-ui/core";
 import { Box } from "@mui/material";
-
 function App() {
-  const defaultTheme = createTheme();
-
   useEffect(() => {
     document.title = "Formulário";
   }, []);
   return (
     <>
-      <ThemeProvider theme={defaultTheme}>
-        <Container
-          maxWidth="xs"
-          sx={{
-            display: "flex",
-            alignItems: "flex-start",
-          }}
-        >
+      <Container
+        maxWidth="xl"
+        sx={{ display: "flex", alignItems: "flex-start" }}
+      >
+        <Container maxWidth="xs">
           <CssBaseline />
           <Box
             sx={{
-              width: 400, // Define a largura do fundo quadrado
-              bgcolor: "background.paper", // Define a cor de fundo branca
-              boxShadow: 3, // Adiciona uma sombra ao fundo
-              p: 3, // Adiciona padding
-              borderRadius: 2, // Adiciona bordas arredondadas (opcional)
-              mt: 4, // Adiciona margem no topo
+              width: 400,
+              bgcolor: "background.paper",
+              boxShadow: 3,
+              p: 3,
+              borderRadius: 2,
+              mt: 4,
               textAlign: "center",
             }}
           >
             <Form />
           </Box>
         </Container>
-      </ThemeProvider>
+        <Container>
+          <Box
+            sx={{
+              width: 600,
+              bgcolor: "background.paper",
+              boxShadow: 3,
+              p: 3,
+              borderRadius: 2,
+              mt: 4,
+              textAlign: "center",
+            }}
+          >
+            <Map />
+          </Box>
+        </Container>
+      </Container>
     </>
   );
 }

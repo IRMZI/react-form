@@ -2,7 +2,8 @@ import { useForm, Controller } from "react-hook-form";
 import { Button, TextField, Typography } from "@material-ui/core";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-
+import axios from "axios";
+import { useState } from "react";
 // ///////
 // objetos
 // ///////
@@ -23,9 +24,10 @@ const schema = z.object({
     Street: z.string().min(1, "Rua é obrigatória"),
     District: z.string().min(1, "Bairro é obrigatório"),
     Complement: z.string(),
-    City: z.string().min(1, "Cidade é obrigatória"),
-    State: z.string().min(1, "Estado é obrigatória"),
-    Number: z.string().min(1, "Numero é obrigatória"),
+    City: z.string().min(1, "Cidade é obrigatório"),
+    State: z.string().min(1, "Estado é obrigatório"),
+    Country: z.string().min(1, "País é obrigatório"),
+    Number: z.string().min(1, "Numero é obrigatório"),
   }),
 });
 //////
@@ -44,17 +46,43 @@ function Form() {
     resolver: zodResolver(schema),
   });
 
-  // ///////
-  // FUNÇÕES
-  // ///////
+  const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
+
+  const handleFormSubmit = async (data: FormProps) => {
+    // mostra a informação vinda do formulario apartir do schema
+    console.log("Informação atual do formulario", data);
+
+    const companyAddress = `${data.address.Number}, ${data.address.Street}, ${data.address.City}, ${data.address.State}, ${data.address.ZipCode}`;
+
+    console.log("O endereço do usuário é:", companyAddress);
+
+    try {
+      const response = await axios.get(
+        "https://nominatim.openstreetmap.org/search",
+        {
+          params: {
+            q: companyAddress,
+            format: "json",
+            addressdetails: 1,
+          },
+        }
+      );
+
+      if (response.data.length > 0) {
+        const { lat, lon } = response.data[0];
+        setCoordinates([parseFloat(lat), parseFloat(lon)]);
+      } else {
+        console.error("No coordinates found for the address.");
+        setCoordinates(null);
+      }
+    } catch (error) {
+      console.error("Error fetching coordinates:", error);
+      setCoordinates(null);
+    }
+  };
 
   // mostra a informação dos erros
   console.log("esses são os erros", errors);
-  // mostra a informação vinda do formulario apartir do schema
-
-  const handleFormSubmit = (data: FormProps) => {
-    console.log("Informação atual do formulario", data);
-  };
   return (
     <div>
       <Typography variant="h6" component="div" gutterBottom>
@@ -71,6 +99,7 @@ function Form() {
               label="Nome da empresa"
               variant="outlined"
               error={!!errors.Company}
+              helperText={errors?.Company?.message}
               fullWidth
               margin="normal"
             />
@@ -86,6 +115,7 @@ function Form() {
               label="CNPJ"
               variant="outlined"
               error={!!errors.UniqueID}
+              helperText={errors?.UniqueID?.message}
               fullWidth
               inputProps={{ maxLength: 14 }}
               margin="normal"
@@ -135,6 +165,22 @@ function Form() {
               variant="outlined"
               error={!!errors.address?.Street}
               helperText={errors?.address?.Street?.message}
+              fullWidth
+              margin="normal"
+            />
+          )}
+        />
+        <Controller
+          name="address.Number"
+          control={control}
+          defaultValue=""
+          render={({ field }) => (
+            <TextField
+              {...field}
+              label="Numero"
+              variant="outlined"
+              error={!!errors.address?.Number}
+              helperText={errors?.address?.Number?.message}
               fullWidth
               margin="normal"
             />
@@ -205,16 +251,16 @@ function Form() {
           )}
         />
         <Controller
-          name="address.Number"
+          name="address.Country"
           control={control}
           defaultValue=""
           render={({ field }) => (
             <TextField
               {...field}
-              label="Numero"
+              label="País"
               variant="outlined"
-              error={!!errors.address?.Number}
-              helperText={errors?.address?.Number?.message}
+              error={!!errors.address?.Country}
+              helperText={errors?.address?.Country?.message}
               fullWidth
               margin="normal"
             />
