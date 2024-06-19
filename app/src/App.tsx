@@ -1,13 +1,9 @@
 import Form from "./Components/Formpage";
 import Map from "./Components/Map";
-import { useEffect } from "react";
 import Container from "@mui/material/Container";
 import { CssBaseline } from "@material-ui/core";
 import { Box } from "@mui/material";
 function App() {
-  useEffect(() => {
-    document.title = "Formulário";
-  }, []);
   return (
     <>
       <Container

@@ -4,20 +4,21 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useState } from "react";
+import InputMask from "react-input-mask";
 
 const schema = z.object({
   Company: z.string().min(1, "Nome da empresa é obrigatório"),
   UniqueID: z
     .string()
-    .min(1, "CNPJ é obrigatório")
-    .max(14, "Máximo de 14 dígitos"),
+    .min(18, "CNPJ é obrigatório")
+    .max(18, "Máximo de 18 caracteres"),
   FantasyName: z.string(),
   //Cria objeto endereço como um json aparte
   address: z.object({
     ZipCode: z
       .string()
-      .min(1, "CEP é obrigatório")
-      .max(9, "Máximo de 9 dígitos"),
+      .min(10, "CEP é obrigatório")
+      .max(10, "Máximo de 10 caracteres"),
     Street: z.string().min(1, "Rua é obrigatória"),
     District: z.string().min(1, "Bairro é obrigatório"),
     Complement: z.string(),
@@ -88,22 +89,32 @@ function Form() {
             },
           }
         );
-        // Se obteve resposta
         if (response.data.length > 0) {
           const { lat, lon } = response.data[0];
           const coords: [number, number] = [parseFloat(lat), parseFloat(lon)];
           setCoordinates(coords);
-          empresa.coordinates = coords;
-          // apartir daqui pode ser utilizado lat e lon como individuais e coordinates como o array
+          // Verifica se as coordenadas são [0, 0]
+          if (coords[0] === 0 && coords[1] === 0) {
+            console.log("Coordenadas inválidas recebidas: [0, 0]");
+          } else {
+            setCoordinates(coords);
+            const newCompany = {
+              ...data,
+              coordinates: coords,
+            };
+            const storedCompanies = JSON.parse(
+              localStorage.getItem("empresas") || "[]"
+            );
+            storedCompanies.push(newCompany);
+            localStorage.setItem("empresas", JSON.stringify(storedCompanies));
+          }
         } else {
-          // Tratamento de erros de requisição
           setCoordinates(null);
+          console.warn(
+            "Nenhuma coordenada encontrada para o endereço fornecido"
+          );
         }
       } catch (error) {}
-      // Adicionar nova empresa à lista
-      empresas.push(empresa);
-      // Armazenar a lista atualizada de empresas no localStorage
-      localStorage.setItem("empresas", JSON.stringify(empresas));
     } catch (error) {
       console.error("Erro ao processar o formulário:", error);
     }
@@ -136,16 +147,22 @@ function Form() {
           control={control}
           defaultValue=""
           render={({ field }) => (
-            <TextField
-              {...field}
-              label="CNPJ"
-              variant="outlined"
-              error={!!errors.UniqueID}
-              helperText={errors?.UniqueID?.message}
-              fullWidth
-              inputProps={{ maxLength: 14 }}
-              margin="normal"
-            />
+            <InputMask
+              mask="99.999.999/9999-99"
+              value={field.value}
+              onChange={field.onChange}
+            >
+              {() => (
+                <TextField
+                  label="CNPJ"
+                  variant="outlined"
+                  error={!!errors.UniqueID}
+                  helperText={errors?.UniqueID?.message}
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            </InputMask>
           )}
         />
         <Controller
@@ -168,16 +185,22 @@ function Form() {
           control={control}
           defaultValue=""
           render={({ field }) => (
-            <TextField
-              {...field}
-              label="CEP"
-              variant="outlined"
-              error={!!errors.address?.ZipCode}
-              helperText={errors?.address?.ZipCode?.message}
-              fullWidth
-              margin="normal"
-              inputProps={{ maxLength: 9 }}
-            />
+            <InputMask
+              mask="99999-999"
+              value={field.value}
+              onChange={field.onChange}
+            >
+              {() => (
+                <TextField
+                  label="CEP"
+                  variant="outlined"
+                  error={!!errors.address?.ZipCode}
+                  helperText={errors?.address?.ZipCode?.message}
+                  fullWidth
+                  margin="normal"
+                />
+              )}
+            </InputMask>
           )}
         />
         <Controller
