@@ -4,21 +4,23 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
 import { useState } from "react";
-import InputMask from "react-input-mask";
 
 const schema = z.object({
   Company: z.string().min(1, "Nome da empresa é obrigatório"),
   UniqueID: z
     .string()
-    .min(18, "CNPJ é obrigatório")
-    .max(18, "Máximo de 18 caracteres"),
+    .min(17, "CNPJ é obrigatório")
+    .max(18, "Máximo de 18 caracteres")
+    .regex(
+      /^\d{2}\.\d{3}\.\d{3}\/\d{4}\-\d{2}$/,
+      "CNPJ deve estar no formato XX.XXX.XXX/XXXX-XX"
+    ),
   FantasyName: z.string(),
-  //Cria objeto endereço como um json aparte
   address: z.object({
     ZipCode: z
       .string()
-      .min(10, "CEP é obrigatório")
-      .max(10, "Máximo de 10 caracteres"),
+      .min(7, "CEP é obrigatório")
+      .max(8, "Máximo de 8 caracteres"),
     Street: z.string().min(1, "Rua é obrigatória"),
     District: z.string().min(1, "Bairro é obrigatório"),
     Complement: z.string(),
@@ -28,6 +30,7 @@ const schema = z.object({
     Number: z.string().min(1, "Numero é obrigatório"),
   }),
 });
+
 //////
 //Define o props do forms como a tipagem do schema
 /////
@@ -43,13 +46,9 @@ function Form() {
   } = useForm<FormProps>({
     resolver: zodResolver(schema),
   });
-
   const [coordinates, setCoordinates] = useState<[number, number] | null>(null);
 
   const handleFormSubmit = async (data: FormProps) => {
-    // mostra a informação vinda do formulario apartir do schema
-    console.log("Informação atual do formulario", data);
-    // Envia requisição
     try {
       const empresa = {
         Company: data.Company,
@@ -78,6 +77,7 @@ function Form() {
         return;
       }
       const companyAddress = `${data.address.Number}, ${data.address.Street} , ${data.address.City} , ${data.address.District} ${data.address.State} ${data.address.Country}`;
+      // Envia requisição
       try {
         const response = await axios.get(
           "https://nominatim.openstreetmap.org/search",
@@ -93,9 +93,8 @@ function Form() {
           const { lat, lon } = response.data[0];
           const coords: [number, number] = [parseFloat(lat), parseFloat(lon)];
           setCoordinates(coords);
-          // Verifica se as coordenadas são [0, 0]
           if (coords[0] === 0 && coords[1] === 0) {
-            console.log("Coordenadas inválidas recebidas: [0, 0]");
+            console.warn("Coordenadas inválidas recebidas: [0, 0]");
           } else {
             setCoordinates(coords);
             const newCompany = {
@@ -108,6 +107,7 @@ function Form() {
             storedCompanies.push(newCompany);
             localStorage.setItem("empresas", JSON.stringify(storedCompanies));
           }
+          alert("Incluido com sucesso, atualize a página");
         } else {
           setCoordinates(null);
           console.warn(
@@ -119,7 +119,6 @@ function Form() {
       console.error("Erro ao processar o formulário:", error);
     }
   };
-
   return (
     <div>
       <Typography variant="h6" component="div" gutterBottom>
@@ -147,22 +146,16 @@ function Form() {
           control={control}
           defaultValue=""
           render={({ field }) => (
-            <InputMask
-              mask="99.999.999/9999-99"
-              value={field.value}
-              onChange={field.onChange}
-            >
-              {() => (
-                <TextField
-                  label="CNPJ"
-                  variant="outlined"
-                  error={!!errors.UniqueID}
-                  helperText={errors?.UniqueID?.message}
-                  fullWidth
-                  margin="normal"
-                />
-              )}
-            </InputMask>
+            <TextField
+              {...field}
+              label="CNPJ"
+              variant="outlined"
+              error={!!errors.UniqueID}
+              helperText={errors?.UniqueID?.message}
+              fullWidth
+              inputProps={{ maxLength: 18 }}
+              margin="normal"
+            />
           )}
         />
         <Controller
@@ -185,22 +178,16 @@ function Form() {
           control={control}
           defaultValue=""
           render={({ field }) => (
-            <InputMask
-              mask="99999-999"
-              value={field.value}
-              onChange={field.onChange}
-            >
-              {() => (
-                <TextField
-                  label="CEP"
-                  variant="outlined"
-                  error={!!errors.address?.ZipCode}
-                  helperText={errors?.address?.ZipCode?.message}
-                  fullWidth
-                  margin="normal"
-                />
-              )}
-            </InputMask>
+            <TextField
+              {...field}
+              label="CEP"
+              variant="outlined"
+              error={!!errors.address?.ZipCode}
+              helperText={errors?.address?.ZipCode?.message}
+              fullWidth
+              margin="normal"
+              inputProps={{ maxLength: 8 }}
+            />
           )}
         />
         <Controller
