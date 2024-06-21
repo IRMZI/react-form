@@ -34,7 +34,6 @@ function Map() {
     }
   };
 
-  // Efeito para carregar empresas ao montar o componente
   useEffect(() => {
     loadCompanies();
   }, []);

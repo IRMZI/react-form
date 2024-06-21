@@ -22,8 +22,6 @@ interface Company {
 
 function CardComponent() {
   const [companies, setCompanies] = useState<Company[]>([]);
-
-  // Função para carregar empresas do localStorage
   const loadCompanies = () => {
     try {
       const storedCompanies: Company[] = JSON.parse(
