@@ -1,5 +1,5 @@
 import Container from "@mui/material/Container";
-import { Box } from "@mui/material";
+import { Box, Button } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Typography } from "@material-ui/core";
 
@@ -72,7 +72,9 @@ function CardComponent() {
           </div>
         </Box>
       ))}
-      <button onClick={clearStorage}>Limpar Dados</button>
+      <Button variant="contained" color="primary" onClick={clearStorage}>
+        Limpar
+      </Button>
     </Container>
   );
 }
