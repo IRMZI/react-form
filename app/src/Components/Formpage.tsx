@@ -107,7 +107,6 @@ function Form() {
             storedCompanies.push(newCompany);
             localStorage.setItem("empresas", JSON.stringify(storedCompanies));
           }
-          alert("Incluido com sucesso, atualize a página");
         } else {
           setCoordinates(null);
           console.warn(

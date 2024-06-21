@@ -2,6 +2,7 @@ import Container from "@mui/material/Container";
 import { Box } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Typography } from "@material-ui/core";
+
 interface Company {
   Company: string;
   UniqueID: string;
@@ -22,25 +23,32 @@ interface Company {
 function CardComponent() {
   const [companies, setCompanies] = useState<Company[]>([]);
 
-  useEffect(() => {
-    const loadCompanies = () => {
-      try {
-        const storedCompanies: Company[] = JSON.parse(
-          localStorage.getItem("empresas") || "[]"
-        );
-        setCompanies(storedCompanies);
-      } catch (error) {
-        console.error("Erro ao carregar empresas do localStorage:", error);
-      }
-    };
+  // Função para carregar empresas do localStorage
+  const loadCompanies = () => {
+    try {
+      const storedCompanies: Company[] = JSON.parse(
+        localStorage.getItem("empresas") || "[]"
+      );
+      setCompanies(storedCompanies);
+    } catch (error) {
+      console.error("Erro ao carregar empresas do localStorage:", error);
+    }
+  };
 
+  useEffect(() => {
     loadCompanies();
   }, []);
-
   const clearStorage = () => {
     localStorage.removeItem("empresas");
     setCompanies([]);
   };
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadCompanies();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <Container>
@@ -49,11 +57,13 @@ function CardComponent() {
       </Typography>
       {companies.map((company, index) => (
         <Box
+          key={index}
           sx={{
             bgcolor: "background.paper",
             boxShadow: 3,
             borderRadius: 2,
             textAlign: "center",
+            mt: 2,
           }}
         >
           <div>

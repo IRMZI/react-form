@@ -21,21 +21,31 @@ interface Company {
 
 function Map() {
   const [companies, setCompanies] = useState<Company[]>([]);
-  useEffect(() => {
-    const loadCompanies = () => {
-      try {
-        const storedCompanies: Company[] = JSON.parse(
-          localStorage.getItem("empresas") || "[]"
-        );
-        setCompanies(storedCompanies);
-      } catch (error) {
-        console.warn("Erro ao carregar empresas do localStorage:", error);
-      }
-    };
 
+  // Função para carregar empresas do localStorage
+  const loadCompanies = () => {
+    try {
+      const storedCompanies: Company[] = JSON.parse(
+        localStorage.getItem("empresas") || "[]"
+      );
+      setCompanies(storedCompanies);
+    } catch (error) {
+      console.warn("Erro ao carregar empresas do localStorage:", error);
+    }
+  };
+
+  // Efeito para carregar empresas ao montar o componente
+  useEffect(() => {
     loadCompanies();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      loadCompanies();
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
   return (
     <div className="map-container">
       <MapContainer
